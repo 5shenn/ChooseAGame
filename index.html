@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose a game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative; /* Allow body to act as relative positioning for the button */
+        }
+
+        #quiz-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            display: none;
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        .options {
+            margin: 20px 0;
+        }
+
+        .options button, .options img {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #ffa32b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .options img {
+            width: 92px;
+            height: auto;
+            cursor: pointer;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .options img:hover {
+            transform: scale(1.05);
+            border-color: #ffa32b;
+        }
+
+        #date-choice input {
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        #conclusion {
+            text-align: center;
+        }
+
+        #sad-image {
+            display: none; 
+            width: 100%;
+            margin: 20px 0;
+        }
+
+      
+        .no-button {
+            position: relative;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+   
+    <div class="question active" id="step-1">
+        <h2>Wanna play games with me?</h2>
+        <div class="options">
+            <button onclick="chooseOption(1, 'Yes')">Yes</button>
+            <button id="noButton" class="no-button" onmouseover="moveButton()">No</button>
+        </div>
+    </div>
+
+    <div class="question" id="step-2">
+        <h2>Good! Are you excited?</h2>
+        <div class="options">
+            <button onclick="chooseOption(2, 'Yes')">Yes</button>
+            <button onclick="chooseOption(2, 'Yes')">Yes</button>
+        </div>
+    </div>
+
+    <div class="question" id="step-3">
+        <h2>What game would you like to play?</h2>
+        <div class="options">
+            <img src="mm2.png" alt="MM2" onclick="chooseOption(3, 'Murder Mystery 2')">
+            <img src="epicminigames.png" alt="EMG" onclick="chooseOption(3, 'Epic Minigames')">
+            <img src="flee the facility.png" alt="FTF" onclick="chooseOption(3, 'Flee the Facility')">
+            <img src="minecraft.png" alt="MC" onclick="chooseOption(3, 'Minecraft')">
+            <img src="yourchoice.png" alt="CHOICE" onclick="chooseOption(3, 'Your Choice')">
+        </div>
+    </div>
+
+    
+    <div class="question" id="step-4">
+        <h2>Pick a date and time:</h2>
+        <div id="date-choice">
+            <input type="date" id="trip-date">
+            <input type="time" id="trip-time">
+            <button onclick="chooseDate()">Next</button>
+        </div>
+    </div>
+
+   
+    <div class="question" id="step-5">
+        <h2>Great, I'm excited too!</h2>
+        <div id="conclusion">
+            <p id="color-choice"></p>
+            <p id="pet-choice"></p>
+            <p id="vacation-choice"></p>
+            <p id="date-choice-display"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1165613810409816064/Imhc3yzV5kHZjKAZGWl3chVi2llL53frIPDFVgCKKkkDJfFpWA9vQ_o6fMzV33XsIkI2'; 
+
+    const userChoices = {
+        playGame: '',
+        excited: '',
+        vacation: '',
+        date: '',
+        time: ''
+    };
+
+    function chooseOption(step, choice) {
+        if (step === 1) {
+            if (choice === 'Yes') {
+                userChoices.playGame = choice;
+                showNextStep(2); 
+            } else if (choice === 'No') {
+                alert("'no' button does not work, press yes");
+            }
+        } else if (step === 2) {
+            userChoices.excited = choice;
+            showNextStep(3); 
+        } else if (step === 3) {
+            userChoices.vacation = choice;
+            showNextStep(4); 
+        }
+    }
+
+    
+    function chooseDate() {
+        const date = document.getElementById('trip-date').value;
+        const time = document.getElementById('trip-time').value;
+        
+        if (date && time) {
+            userChoices.date = date;
+            userChoices.time = time;
+            showNextStep(5); 
+            showConclusion();
+        } else {
+            alert('Please select both a date and a time!');
+        }
+    }
+
+    
+    function showNextStep(step) {
+        const currentStep = document.querySelector('.question.active');
+        currentStep.classList.remove('active');
+
+        const nextStep = document.getElementById(`step-${step}`);
+        nextStep.classList.add('active');
+    }
+
+    
+    function showConclusion() {
+        document.getElementById('color-choice').innerText = `Play Games: ${userChoices.playGame}`;
+        document.getElementById('pet-choice').innerText = `Excited: ${userChoices.excited}`;
+        document.getElementById('vacation-choice').innerText = `Game Choice: ${userChoices.vacation}`;
+        document.getElementById('date-choice-display').innerText = `Date: ${userChoices.date} at ${userChoices.time}`;
+        
+        
+        sendToDiscord(userChoices);
+    }
+
+    
+    function sendToDiscord(data) {
+        const payload = {
+            content: `User Choices:\nPlay Games: ${data.playGame}\nExcited: ${data.excited}\nGame Choice: ${data.vacation}\nDate: ${data.date} at ${data.time}`
+        };
+
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log('Data sent to Discord!');
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    }
+
+    function moveButton() {
+        const button = document.getElementById('noButton');
+
+        const viewportWidth = window.innerWidth - button.offsetWidth;
+        const viewportHeight = window.innerHeight - button.offsetHeight;
+
+        const randomX = Math.floor(Math.random() * viewportWidth);
+        const randomY = Math.floor(Math.random() * viewportHeight);
+
+        button.style.position = 'absolute';
+        button.style.left = `${randomX}px`;
+        button.style.top = `${randomY}px`;
+    }
+
+</script>
+</body>
+</html>
